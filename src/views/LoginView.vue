@@ -58,19 +58,13 @@ export default {
       )}&password=${encodeURIComponent(this.password.trim())}`;
 
       try {
-        const response = await fetch(url, {
-          method: "POST",
-        });
+        const response = await fetch(url, { method: "POST" });
 
-        console.log("STATUS:", response.status);
-
-        // Se não for 200, erro
         if (!response.ok) {
           alert("Credenciais inválidas.");
           return;
         }
 
-        // 🔥 AGORA: usa json() direto
         let data;
         try {
           data = await response.json();
@@ -80,17 +74,13 @@ export default {
           return;
         }
 
-        console.log("JSON:", data);
-
         if (!data.access_token) {
           alert("Credenciais inválidas.");
           return;
         }
 
         localStorage.setItem("token", data.access_token);
-
-        alert("Login realizado com sucesso!");
-        // this.$router.push("/home");
+        this.$router.push("/dashboard");
 
       } catch (error) {
         console.error("ERRO NO FETCH:", error);
@@ -102,7 +92,6 @@ export default {
 </script>
 
 <style scoped>
-/* ===== GLOBAL ===== */
 .container {
   height: 100vh;
   display: flex;
@@ -111,7 +100,6 @@ export default {
   background: linear-gradient(135deg, #f5faff, #eef4ff);
 }
 
-/* ===== CARD ===== */
 .card {
   background: white;
   width: 380px;
@@ -149,15 +137,18 @@ h3 {
 }
 
 .form-group {
-  text-align: left;
+  text-align: center;
   margin-bottom: 15px;
+  width: 100%;
 }
 
-label {
+.form-group label {
+  display: block;
+  width: 100%;
   font-size: 14px;
   color: #444;
+  text-align: center;
   margin-bottom: 5px;
-  display: block;
 }
 
 input {
@@ -166,9 +157,12 @@ input {
   border: 1px solid #dce1e8;
   border-radius: 6px;
   font-size: 14px;
+  background: #f8fafc;
   outline: none;
   transition: 0.2s;
-  background: #f8fafc;
+  margin: 0 auto;
+  box-sizing: border-box;
+  display: block;
 }
 
 input:focus {
@@ -188,6 +182,7 @@ input:focus {
   font-size: 15px;
   font-weight: 500;
   transition: 0.2s;
+  text-align: center;
 }
 
 .btn:hover {

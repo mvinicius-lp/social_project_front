@@ -1,6 +1,10 @@
 <template>
   <div class="layout">
-    <Sidebar :active="'dashboard'" @navigate="onNavigate" />
+    <Sidebar
+      :active="'dashboard'"
+      @navigate="onNavigate"
+      @logout="handleLogout"
+    />
 
     <main class="main">
       <header class="header">
@@ -36,7 +40,6 @@
         <div class="side">
           <h4>Doações por Tipo</h4>
           <p class="muted">Distribuição por categoria</p>
-          <!-- Passamos labels já com porcentagem e os dados originais -->
           <PieChart :labels="pieLabelsWithPercent" :data="pie.data" :total="stats.totalArrecadado" />
         </div>
       </section>
@@ -50,12 +53,16 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
 import Sidebar from '../components/Sidebar.vue'
 import StatCard from '../components/StatCard.vue'
 import LineChart from '../components/LineChart.vue'
 import PieChart from '../components/PieChart.vue'
 import RecentDonations from '../components/RecentDonations.vue'
-import useDashboard from '../components/useDashboard' // corrigido para composables
+import useDashboard from '../components/useDashboard'
+
+const router = useRouter()
 
 const { loading, stats, months, monthlyValues, pie, recentDonations, fetchDashboard } = useDashboard()
 
@@ -63,14 +70,25 @@ onMounted(() => {
   fetchDashboard()
 })
 
-// formata labels do pie adicionando a porcentagem (ex: "Dinheiro 60%")
+async function handleLogout() {
+  try {
+    await fetch("http://127.0.0.1:8000/auth/logout", {
+      method: "POST",
+    })
+  } catch (err) {
+    console.error("Erro ao fazer logout:", err)
+  }
+
+  // remover token e redirecionar
+  localStorage.removeItem("token")
+  router.push("/login")
+}
+
 const pieLabelsWithPercent = computed(() => {
-  // pie é um ref para um objeto { labels: [], data: [] } — no template refs são auto-unwrapped,
-  // aqui usamos pie.value porque estamos no script.
-  const labels = (pie.value && pie.value.labels) || []
-  const values = (pie.value && pie.value.data) || []
+  const labels = pie.value?.labels || []
+  const values = pie.value?.data || []
   const numeric = values.map(v => Number(v || 0))
-  const total = numeric.reduce((s, n) => s + (Number.isFinite(n) ? n : 0), 0) || 1
+  const total = numeric.reduce((s, v) => s + (Number.isFinite(v) ? v : 0), 0) || 1
 
   return labels.map((lab, i) => {
     const val = Number(values[i] || 0)
@@ -85,8 +103,7 @@ function formatCurrency(v){
 }
 
 function onNavigate(page){
-  // se usa router, substitua por: router.push({ name: page })
-  console.log('navegar para', page)
+  console.log("navigate:", page)
 }
 </script>
 
@@ -103,22 +120,20 @@ function onNavigate(page){
   margin-bottom:22px;
 }
 
-/* Charts area */
 .charts-grid{
   display:grid;
   grid-template-columns: 2fr 1fr;
   gap:18px;
   align-items:start;
 }
-.charts-grid .big{ background:transparent; padding:8px; }
-.charts-grid .side{ background:transparent; padding:8px; }
 
-h4{ margin:0 0 6px; color:#375a7a; }
-.muted{ color:#8fa6bb; margin-bottom:8px; font-size:13px; }
+.charts-grid .big,
+.charts-grid .side {
+  padding:8px;
+}
 
 .recent-section{ margin-top:20px; }
 
-/* responsivo */
 @media (max-width: 900px){
   .cards-row{ grid-template-columns: repeat(2, 1fr); }
   .charts-grid{ grid-template-columns: 1fr; }

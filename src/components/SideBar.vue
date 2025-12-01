@@ -25,11 +25,10 @@
       </nav>
     </div>
 
-    <!-- botão Sair no rodapé -->
+    <!-- botão Sair -->
     <div class="footer">
       <button class="logout" @click="$emit('logout')">
         <span class="icon">
-          <!-- ícone simples de logout (inline SVG) -->
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
@@ -46,7 +45,6 @@
 defineProps({
   active: { type: String, default: 'dashboard' }
 })
-// emit handled directly via $emit in template; no need to define explicitly
 </script>
 
 <style scoped>
@@ -57,13 +55,11 @@ defineProps({
   border-right: 1px solid #e6eef8;
   background: #fff;
   box-sizing: border-box;
-
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* empurra o footer para baixo */
+  justify-content: space-between;
 }
 
-/* mantém a área superior agrupada */
 .brand{ display:flex; gap:12px; align-items:center; margin-bottom:18px;}
 .logo{ font-size:28px; }
 .brand h3{ margin:0; font-size:16px; color:#0b4da2; }
@@ -79,15 +75,11 @@ defineProps({
   cursor:pointer;
   color:#385971;
   width:100%;
-  box-sizing:border-box;
 }
 .nav-item.active{ background:#eef6ff; color:#0b4da2; font-weight:600; }
 .nav-item:hover{ background:#f7fbff; }
 
-/* footer / logout */
-.footer{
-  margin-top: 12px;
-}
+.footer{ margin-top: 12px; }
 .logout{
   display:flex;
   align-items:center;
@@ -100,7 +92,6 @@ defineProps({
   cursor:pointer;
   color:#1e3a8a;
   font-weight:600;
-  box-sizing:border-box;
 }
 .logout:hover{
   background:#f1f8ff;
