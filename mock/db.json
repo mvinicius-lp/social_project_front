@@ -1,0 +1,19 @@
+{
+  "dashboard": {
+    "totalArrecadado": 10000,
+    "totalDoadores": 6,
+    "doacaoMedia": 418.75,
+    "doacoesEsteMes": 8,
+    "months": ["Jul","Ago","Set","Out","Nov"],
+    "monthlyValues": [2700,3400,3000,3600,3500],
+    "pieLabels": ["Dinheiro","Alimentos","Medicamentos","Roupas","Outros"],
+    "pieData": [60,16,14,6,4],
+    "recentDonations": [
+      { "id": 1, "donorName": "Carlos Ferreira", "type": "Dinheiro", "description": "Doação mensal", "amount": 500, "date": "2025-11-15" },
+      { "id": 2, "donorName": "Maria Silva", "type": "Alimentos", "description": "Cestas básicas", "amount": 300, "date": "2025-11-14" },
+      { "id": 3, "donorName": "João Santos", "type": "Medicamentos", "description": "Medicamentos diversos", "amount": 450, "date": "2025-11-13" },
+      { "id": 4, "donorName": "Beatriz Costa", "type": "Roupas", "description": "Roupas de inverno", "amount": 200, "date": "2025-11-11" },
+      { "id": 5, "donorName": "Ana Oliveira", "type": "Alimentos", "description": "Alimentos não perecíveis", "amount": 250, "date": "2025-11-09" }
+    ]
+  }
+}
