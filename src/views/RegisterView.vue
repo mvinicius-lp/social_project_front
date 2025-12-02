@@ -3,12 +3,25 @@
     <div class="card">
       <div class="icon-container">💙</div>
 
-      <h2>Solidarity Donations System</h2>
-      <h3>Casa do Idoso</h3>
+      <h2>Criar Nova Conta</h2>
+      <h3>Casa do Idoso - Sistema de Doações</h3>
 
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleRegister">
+
+        <!-- Nome -->
         <div class="form-group">
-          <label>Email</label>
+          <label>Nome de Usuário *</label>
+          <input
+            v-model="username"
+            type="text"
+            placeholder="Digite seu nome de usuário"
+            required
+          />
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label>Email *</label>
           <input
             v-model="email"
             type="email"
@@ -17,8 +30,20 @@
           />
         </div>
 
+        <!-- Função -->
         <div class="form-group">
-          <label>Senha</label>
+          <label>Função *</label>
+          <select v-model="role" required>
+            <option disabled value="">Selecione uma função</option>
+            <option value="admin">Administrador</option>
+            <option value="colaborador">Colaborador</option>
+            <option value="voluntario">Voluntário</option>
+          </select>
+        </div>
+
+        <!-- Senha -->
+        <div class="form-group">
+          <label>Senha *</label>
           <input
             v-model="password"
             type="password"
@@ -27,71 +52,59 @@
           />
         </div>
 
-        <button type="submit" class="btn">Entrar</button>
+        <!-- Confirmar Senha -->
+        <div class="form-group">
+          <label>Confirmar Senha *</label>
+          <input
+            v-model="confirmPassword"
+            type="password"
+            placeholder="********"
+            required
+          />
+        </div>
+
+        <button class="btn" type="submit">Criar Conta</button>
       </form>
 
-      <p class="info">Cadastre-se</p>
+      <p class="login">
+        Já tem uma conta?
+        <router-link to="/login">Faça login</router-link>
+      </p>
+
+      <p class="info">Preencha todos os campos para criar sua conta</p>
+
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: "LoginView",
+  name: "RegisterView",
 
   data() {
     return {
+      username: "",
       email: "",
+      role: "",
       password: "",
+      confirmPassword: "",
     };
   },
 
   methods: {
-    async handleLogin() {
-      if (!this.email || !this.password) {
-        alert("Preencha email e senha!");
+    handleRegister() {
+      if (this.password !== this.confirmPassword) {
+        alert("As senhas não coincidem!");
         return;
       }
-
-      const url = `http://127.0.0.1:8000/auth/login?email=${encodeURIComponent(
-        this.email.trim()
-      )}&password=${encodeURIComponent(this.password.trim())}`;
-
-      try {
-        const response = await fetch(url, { method: "POST" });
-
-        if (!response.ok) {
-          alert("Credenciais inválidas.");
-          return;
-        }
-
-        let data;
-        try {
-          data = await response.json();
-        } catch (jsonError) {
-          console.error("Erro convertendo JSON:", jsonError);
-          alert("Resposta inválida do servidor.");
-          return;
-        }
-
-        if (!data.access_token) {
-          alert("Credenciais inválidas.");
-          return;
-        }
-
-        localStorage.setItem("token", data.access_token);
-        this.$router.push("/dashboard");
-
-      } catch (error) {
-        console.error("ERRO NO FETCH:", error);
-        alert("Erro de conexão com o servidor.");
-      }
+      alert("Formulário pronto para integração!");
     },
   },
 };
 </script>
 
 <style scoped>
+/* ===== GLOBAL ===== */
 .container {
   height: 100vh;
   display: flex;
@@ -100,9 +113,10 @@ export default {
   background: linear-gradient(135deg, #f5faff, #eef4ff);
 }
 
+/* ===== CARD ===== */
 .card {
   background: white;
-  width: 380px;
+  width: 380px; /* igual ao Login */
   padding: 35px 40px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -122,6 +136,7 @@ export default {
   font-size: 30px;
 }
 
+/* ===== TITLES ===== */
 h2 {
   font-size: 18px;
   margin-bottom: 4px;
@@ -136,6 +151,7 @@ h3 {
   font-weight: 400;
 }
 
+/* ===== FORM CONTROL ===== */
 .form-group {
   text-align: center;
   margin-bottom: 15px;
@@ -151,7 +167,8 @@ h3 {
   margin-bottom: 5px;
 }
 
-input {
+/* Inputs e Selects 100% iguais ao Login */
+input, select {
   width: 100%;
   padding: 12px;
   border: 1px solid #dce1e8;
@@ -165,11 +182,12 @@ input {
   display: block;
 }
 
-input:focus {
+input:focus, select:focus {
   border-color: #3388ff;
   background: #ffffff;
 }
 
+/* ===== BUTTON ===== */
 .btn {
   width: 100%;
   padding: 12px;
@@ -189,9 +207,25 @@ input:focus {
   background: #1f6fe6;
 }
 
-.info {
+/* ===== LINKS ===== */
+.login {
   margin-top: 15px;
   font-size: 13px;
+  color: #666;
+}
+
+.login a {
+  color: #3388ff;
+  text-decoration: none;
+}
+.login a:hover {
+  text-decoration: underline;
+}
+
+/* Info */
+.info {
+  margin-top: 15px;
+  font-size: 12px;
   color: #666;
 }
 </style>
