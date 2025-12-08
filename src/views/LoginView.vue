@@ -30,7 +30,11 @@
         <button type="submit" class="btn">Entrar</button>
       </form>
 
-      <p class="info">Cadastre-se</p>
+      <!-- 🔵 AGORA COM LINK CORRETO PARA REGISTER -->
+      <p class="info">
+        <router-link to="/register">Cadastre-se</router-link>
+      </p>
+
     </div>
   </div>
 </template>
@@ -193,5 +197,14 @@ input:focus {
   margin-top: 15px;
   font-size: 13px;
   color: #666;
+}
+
+.info a {
+  color: #3388ff;
+  text-decoration: none;
+}
+
+.info a:hover {
+  text-decoration: underline;
 }
 </style>

@@ -10,18 +10,43 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-item" :class="{active: active==='dashboard'}" @click="$emit('navigate','dashboard')">
+
+        <!-- DASHBOARD -->
+        <button
+          class="nav-item"
+          :class="{ active: active === 'dashboard' }"
+          @click="navigate('dashboard')"
+        >
           Dashboard
         </button>
-        <button class="nav-item" :class="{active: active==='doacoes'}" @click="$emit('navigate','doacoes')">
+
+        <!-- DOAÇÕES -->
+        <button
+          class="nav-item"
+          :class="{ active: active === 'doacoes' }"
+          @click="navigate('doacoes')"
+        >
           Doações
         </button>
-        <button class="nav-item" :class="{active: active==='doadores'}" @click="$emit('navigate','doadores')">
+
+        <!-- DOADORES -->
+        <button
+          class="nav-item"
+          :class="{ active: active === 'doadores' }"
+          @click="navigate('doadores')"
+        >
           Doadores
         </button>
-        <button class="nav-item" :class="{active: active==='aplicacoes'}" @click="$emit('navigate','aplicacoes')">
+
+        <!-- APLICAÇÕES -->
+        <button
+          class="nav-item"
+          :class="{ active: active === 'aplicacoes' }"
+          @click="navigate('aplicacoes')"
+        >
           Aplicações
         </button>
+
       </nav>
     </div>
 
@@ -29,7 +54,9 @@
     <div class="footer">
       <button class="logout" @click="$emit('logout')">
         <span class="icon">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+            viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -42,9 +69,29 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
+
 defineProps({
-  active: { type: String, default: 'dashboard' }
-})
+  active: { type: String, default: "dashboard" },
+});
+
+const emit = defineEmits(["navigate", "logout"]);
+const router = useRouter();
+
+/**
+ * Handler único para navegar
+ * - Emite evento para telas que usam <Sidebar @navigate="...">
+ * - Faz push direto caso queira usar navegação automática
+ */
+function navigate(page) {
+  emit("navigate", page); // mantém compatibilidade com seu DashBoard atual
+
+  // Navegação direta pelo router (caso deseje usar)
+  if (page === "dashboard") router.push({ name: "dashboard" });
+  if (page === "doadores") router.push({ name: "doadores" });
+  if (page === "doacoes") router.push({ name: "dashboard" }); // ajustar quando módulo existir
+  if (page === "aplicacoes") router.push({ name: "dashboard" }); // placeholder
+}
 </script>
 
 <style scoped>
@@ -60,7 +107,7 @@ defineProps({
   justify-content: space-between;
 }
 
-.brand{ display:flex; gap:12px; align-items:center; margin-bottom:18px;}
+.brand{ display:flex; gap:12px; align-items:center; margin-bottom:18px; }
 .logo{ font-size:28px; }
 .brand h3{ margin:0; font-size:16px; color:#0b4da2; }
 .brand small{ color:#8b9ab4; display:block; }

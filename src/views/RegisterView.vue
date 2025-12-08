@@ -14,7 +14,7 @@
           <input
             v-model="username"
             type="text"
-            placeholder="Digite seu nome de usuário"
+            placeholder="Digite seu nome completo"
             required
           />
         </div>
@@ -35,7 +35,7 @@
           <label>Função *</label>
           <select v-model="role" required>
             <option disabled value="">Selecione uma função</option>
-            <option value="admin">Administrador</option>
+            <option value="administrador">Administrador</option>
             <option value="colaborador">Colaborador</option>
             <option value="voluntario">Voluntário</option>
           </select>
@@ -72,7 +72,6 @@
       </p>
 
       <p class="info">Preencha todos os campos para criar sua conta</p>
-
     </div>
   </div>
 </template>
@@ -92,12 +91,39 @@ export default {
   },
 
   methods: {
-    handleRegister() {
+    async handleRegister() {
       if (this.password !== this.confirmPassword) {
         alert("As senhas não coincidem!");
         return;
       }
-      alert("Formulário pronto para integração!");
+
+      // monta a URL igual ao curl fornecido
+      const url = `http://127.0.0.1:8000/auth/register?` +
+        `name=${encodeURIComponent(this.username.trim())}` +
+        `&email=${encodeURIComponent(this.email.trim())}` +
+        `&password=${encodeURIComponent(this.password.trim())}` +
+        `&funcao=${encodeURIComponent(this.role.trim())}`;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+        });
+
+        const text = await response.text();
+        console.log("RAW RESPONSE:", text);
+
+        if (!response.ok) {
+          alert("Erro ao criar conta: " + text);
+          return;
+        }
+
+        alert("Conta criada com sucesso!");
+        this.$router.push("/login");
+
+      } catch (error) {
+        console.error("ERRO REGISTER:", error);
+        alert("Erro de conexão com servidor.");
+      }
     },
   },
 };
@@ -116,7 +142,7 @@ export default {
 /* ===== CARD ===== */
 .card {
   background: white;
-  width: 380px; /* igual ao Login */
+  width: 380px;
   padding: 35px 40px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
@@ -167,7 +193,7 @@ h3 {
   margin-bottom: 5px;
 }
 
-/* Inputs e Selects 100% iguais ao Login */
+/* Inputs e Selects padrão 100% */
 input, select {
   width: 100%;
   padding: 12px;
@@ -200,7 +226,6 @@ input:focus, select:focus {
   font-size: 15px;
   font-weight: 500;
   transition: 0.2s;
-  text-align: center;
 }
 
 .btn:hover {
@@ -218,6 +243,7 @@ input:focus, select:focus {
   color: #3388ff;
   text-decoration: none;
 }
+
 .login a:hover {
   text-decoration: underline;
 }
