@@ -50,12 +50,11 @@
 
 <script setup>
 import { computed, onMounted } from 'vue'
-import Sidebar from '../components/Sidebar.vue'
 import StatCard from '../components/StatCard.vue'
 import LineChart from '../components/LineChart.vue'
 import PieChart from '../components/PieChart.vue'
 import RecentDonations from '../components/RecentDonations.vue'
-import useDashboard from '../components/useDashboard' // corrigido para composables
+import useDashboard from '../composables/useDashboard' // corrigido para composables
 
 const { loading, stats, months, monthlyValues, pie, recentDonations, fetchDashboard } = useDashboard()
 

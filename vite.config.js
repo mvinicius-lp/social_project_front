@@ -12,7 +12,13 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+
+      // Adicione o alias específico para componentes
+      '@components': fileURLToPath(new URL('./src/components', import.meta.url)),
+      
+      // Se você quiser o alias para composables
+      '@composables': fileURLToPath(new URL('./src/composables', import.meta.url)),
     },
   },
 })

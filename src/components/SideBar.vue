@@ -10,26 +10,27 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-item" :class="{active: active==='dashboard'}" @click="$emit('navigate','dashboard')">
+        <router-link to="/Dashboard" class="nav-item" active-class="active">
           Dashboard
-        </button>
-        <button class="nav-item" :class="{active: active==='doacoes'}" @click="$emit('navigate','doacoes')">
+        </router-link>
+        
+        <router-link to="/doacoes" class="nav-item" active-class="active">
           Doações
-        </button>
-        <button class="nav-item" :class="{active: active==='doadores'}" @click="$emit('navigate','doadores')">
+        </router-link>
+        
+        <router-link to="/doadores" class="nav-item" active-class="active">
           Doadores
-        </button>
-        <button class="nav-item" :class="{active: active==='aplicacoes'}" @click="$emit('navigate','aplicacoes')">
+        </router-link>
+        
+        <router-link to="/aplicacoes" class="nav-item" active-class="active">
           Aplicações
-        </button>
+        </router-link>
       </nav>
     </div>
 
-    <!-- botão Sair no rodapé -->
     <div class="footer">
       <button class="logout" @click="$emit('logout')">
         <span class="icon">
-          <!-- ícone simples de logout (inline SVG) -->
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e3a8a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
@@ -43,10 +44,8 @@
 </template>
 
 <script setup>
-defineProps({
-  active: { type: String, default: 'dashboard' }
-})
-// emit handled directly via $emit in template; no need to define explicitly
+// Props não é mais necessária, pois o Router Link gerencia o estado ativo.
+// O emit de logout permanece.
 </script>
 
 <style scoped>
@@ -80,6 +79,8 @@ defineProps({
   color:#385971;
   width:100%;
   box-sizing:border-box;
+  display:flex;
+  text-decoration:none;
 }
 .nav-item.active{ background:#eef6ff; color:#0b4da2; font-weight:600; }
 .nav-item:hover{ background:#f7fbff; }
