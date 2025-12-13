@@ -5,6 +5,7 @@ export default function useDashboard() {
 
   const stats = ref({
     totalArrecadado: 12500,
+    totalAplicado: 3350,
     totalDoadores: 42,
     doacaoMedia: 178,
     doacoesEsteMes: 19

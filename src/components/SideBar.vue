@@ -86,11 +86,11 @@ const router = useRouter();
 function navigate(page) {
   emit("navigate", page); // mantém compatibilidade com seu DashBoard atual
 
-  // Navegação direta pelo router (caso deseje usar)
+  // Navegação direta pelo router 
   if (page === "dashboard") router.push({ name: "dashboard" });
   if (page === "doadores") router.push({ name: "doadores" });
-  if (page === "doacoes") router.push({ name: "dashboard" }); // ajustar quando módulo existir
-  if (page === "aplicacoes") router.push({ name: "dashboard" }); // placeholder
+  if (page === "doacoes") router.push({ name: "doacoes" }); 
+  if (page === "aplicacoes") router.push({ name: "aplicacoes" }); // placeholder
 }
 </script>
 

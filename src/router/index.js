@@ -6,6 +6,8 @@ import DashBoard from "../views/DashBoard.vue";
 import RegisterView from "../views/RegisterView.vue";
 import DoadoresView from "../views/DoadoresView.vue";
 import NovoDoador from "../views/NovoDoador.vue";
+import DonationsView from "../views/DonationsView.vue";
+import ApplicationsView from "../views/ApplicationsView.vue";
 
 const routes = [
   {
@@ -44,6 +46,19 @@ const routes = [
     path: "/doadores/novo",
     name: "novo-doador",
     component: NovoDoador,
+  },
+  // DOAÇÕES
+  {
+    path: "/doacoes",
+    name: "doacoes",
+    component: DonationsView,
+  },
+
+  //Aplicações
+  {
+    path: "/aplicacoes",
+    name: "aplicacoes",
+    component: ApplicationsView,
   },
 ];
 
