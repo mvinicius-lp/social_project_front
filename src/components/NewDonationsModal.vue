@@ -1,30 +1,31 @@
 <template>
   <div class="modal-overlay" @click.self="$emit('close')">
     <div class="modal-content">
-      
+
       <div class="modal-header">
         <h3>Adicionar Nova Doação</h3>
         <button class="close-button" @click="$emit('close')">×</button>
       </div>
 
       <form @submit.prevent="handleSubmit">
-        
+
         <div class="form-group">
-          <label for="donor">Doador</label>
-          <input 
-            type="text" 
-            id="donor" 
-            v-model="newDonation.donor" 
+          <label for="donor">Doador (email cadastrado)</label>
+          <input
+            type="text"
+            id="donor"
+            v-model="newDonation.donor"
+            placeholder="Ex.: maria@email.com"
             required
           />
         </div>
 
         <div class="form-group">
           <label for="date">Data</label>
-          <input 
-            type="date" 
-            id="date" 
-            v-model="newDonation.date" 
+          <input
+            type="date"
+            id="date"
+            v-model="newDonation.date"
             required
           />
         </div>
@@ -41,20 +42,22 @@
 
         <div class="form-group">
           <label for="description">Descrição</label>
-          <textarea 
-            id="description" 
+          <textarea
+            id="description"
             v-model="newDonation.description"
+            placeholder="Ex.: Doação em dinheiro, alimentos..."
           ></textarea>
         </div>
 
         <div class="form-group">
           <label for="value">Valor (R$)</label>
-          <input 
-            type="number" 
-            id="value" 
-            v-model.number="newDonation.value" 
+          <input
+            type="number"
+            id="value"
+            v-model.number="newDonation.value"
             min="0.01"
             step="0.01"
+            placeholder="Ex.: 150.00"
             required
           />
         </div>
@@ -68,7 +71,7 @@
           </button>
         </div>
       </form>
-      
+
     </div>
   </div>
 </template>
@@ -80,36 +83,57 @@ const emits = defineEmits(['close', 'add-donation']);
 
 const donationTypes = ['Dinheiro', 'Alimentos', 'Medicamentos', 'Roupas', 'Outros'];
 
-// Estado inicial do formulário para a nova doação
 const newDonation = ref({
   donor: '',
-  date: new Date().toISOString().split('T')[0], // Data de hoje por padrão
+  date: new Date().toISOString().split('T')[0],
   type: '',
   description: '',
   value: null,
 });
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!newDonation.value.donor || !newDonation.value.type || !newDonation.value.value) {
-    alert('Por favor, preencha todos os campos obrigatórios (Doador, Tipo e Valor).');
+    alert('Preencha Doador, Tipo e Valor.');
     return;
   }
-  
-  // Formatando o objeto a ser emitido. 
-  // O ID deve ser gerado no componente pai (DonationView) ou pelo Backend.
-  const donationToAdd = {
-    ...newDonation.value,
-    value: parseFloat(newDonation.value.value), // Garante que o valor é um número
-  };
-  
-  emits('add-donation', donationToAdd);
-  
-  // O componente pai será responsável por fechar o modal.
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/donations/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "accept": "application/json"
+      },
+      body: JSON.stringify({
+        donor: newDonation.value.donor,
+        date: newDonation.value.date,
+        type: newDonation.value.type,
+        description: newDonation.value.description,
+        value: parseFloat(newDonation.value.value)
+      }),
+    });
+
+    if (!response.ok) {
+      alert("Erro ao registrar doação.");
+      return;
+    }
+
+    const savedDonation = await response.json();
+
+    // envia para o componente pai atualizar a tabela
+    emits("add-donation", savedDonation);
+
+    // fecha modal
+    emits("close");
+
+  } catch (err) {
+    console.error("Erro ao enviar doação:", err);
+    alert("Erro de conexão com o servidor.");
+  }
 };
 </script>
 
 <style scoped>
-/* Estilização do Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -155,7 +179,6 @@ const handleSubmit = () => {
   color: #9ca3af;
 }
 
-/* Estilização do Formulário */
 .form-group {
   margin-bottom: 15px;
 }
@@ -167,9 +190,7 @@ label {
   color: #374151;
 }
 
-input[type="text"],
-input[type="date"],
-input[type="number"],
+input,
 select,
 textarea {
   width: 100%;
@@ -177,15 +198,13 @@ textarea {
   border: 1px solid #d1d5db;
   border-radius: 4px;
   font-size: 16px;
-  box-sizing: border-box; /* Garante que o padding não aumente o tamanho final */
 }
 
 textarea {
-    resize: vertical;
-    min-height: 80px;
+  resize: vertical;
+  min-height: 80px;
 }
 
-/* Ações e Botões */
 .modal-actions {
   margin-top: 30px;
   display: flex;

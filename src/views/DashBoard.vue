@@ -11,7 +11,7 @@
       <section class="cards-row">
         <StatCard
           title="Total Arrecadado"
-          :value="formatCurrency(stats.totalArrecadado)"
+          :value="stats.totalArrecadado"
           sub="+12% em relação ao mês anterior"
         >
           <template #icon>💲</template>
@@ -23,7 +23,7 @@
 
         <StatCard
           title="Doação Média"
-          :value="formatCurrency(stats.doacaoMedia)"
+          :value="stats.doacaoMedia"
           sub="Por doação recebida"
         >
           <template #icon>📈</template>
@@ -33,6 +33,7 @@
           <template #icon>📦</template>
         </StatCard>
       </section>
+
       <section class="balance-section">
         <BalanceCard
           :total-arrecadado="stats.totalArrecadado"
@@ -79,23 +80,48 @@ import BalanceCard from "../components/BalanceCard.vue";
 
 const router = useRouter();
 
+// Dados internos do dashboard
 const { loading, stats, months, monthlyValues, pie, recentDonations, fetchDashboard } =
   useDashboard();
 
-onMounted(() => {
-  fetchDashboard();
+// --- INTEGRAÇÃO DO BACKEND REAL ---
+// Backend: GET /dashboard
+async function loadBackendDashboard() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/dashboard/", {
+      headers: { accept: "application/json" }
+    });
+
+    if (!res.ok) {
+      console.error("Erro ao buscar dashboard do backend.");
+      return;
+    }
+
+    const data = await res.json();
+
+    // Sobrescrevendo SOMENTE os números principais
+    stats.value.totalArrecadado = data.totalArrecadado;
+    stats.value.totalDoadores = data.totalDoadores;
+    stats.value.doacaoMedia = data.doacaoMedia;
+    stats.value.doacoesEsteMes = data.doacoesMes;
+
+  } catch (error) {
+    console.error("Erro integrando backend dashboard:", error);
+  }
+}
+
+onMounted(async () => {
+  await fetchDashboard();       // mantém gráficos, recentes, balance
+  await loadBackendDashboard(); // substitui apenas os KPIs principais
 });
 
 async function handleLogout() {
   try {
-    await fetch("http://127.0.0.1:8000/auth/logout", {
-      method: "POST",
-    });
+    await fetch("http://127.0.0.1:8000/auth/logout", { method: "POST" });
   } catch (err) {
     console.error("Erro ao fazer logout:", err);
   }
 
-  // remover token e redirecionar
   localStorage.removeItem("token");
   router.push("/login");
 }
@@ -112,11 +138,6 @@ const pieLabelsWithPercent = computed(() => {
     return `${lab} ${pct}%`;
   });
 });
-
-function formatCurrency(v) {
-  if (v == null) return "-";
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v);
-}
 
 function onNavigate(page) {
   console.log("navigate:", page);

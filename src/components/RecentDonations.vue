@@ -6,16 +6,17 @@
     </div>
 
     <div v-if="loading" class="empty">Carregando...</div>
-    <div v-else-if="!items.length" class="empty">Nenhuma doação ainda.</div>
+    <div v-else-if="recentDonations.length === 0" class="empty">Nenhuma doação ainda.</div>
 
     <ul v-else class="list">
-      <li v-for="(d, idx) in items" :key="d.id ?? idx" class="item">
+      <li v-for="d in recentDonations" :key="d.id" class="item">
         <div class="info">
-          <div class="name">{{ d.donorName }}</div>
+          <div class="name">{{ d.donor }}</div>
           <div class="meta">{{ d.type }} - {{ d.description }}</div>
         </div>
+
         <div class="amount">
-          <div class="value">{{ formatCurrency(d.amount) }}</div>
+          <div class="value">{{ formatCurrency(d.value) }}</div>
           <div class="date">{{ formatDate(d.date) }}</div>
         </div>
       </li>
@@ -24,19 +25,59 @@
 </template>
 
 <script setup>
-defineProps({
-  items: { type: Array, default: () => [] },
-  loading: { type: Boolean, default: false }
-})
+import { ref, onMounted } from "vue";
 
-function formatCurrency(v){
-  if (v == null) return '-'
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
+const donations = ref([]);
+const loading = ref(false);
+
+const fetchRecentDonations = async () => {
+  loading.value = true;
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/donations/", {
+      method: "GET",
+      headers: { accept: "application/json" }
+    });
+
+    if (!res.ok) {
+      console.error("Erro ao buscar doações.");
+      loading.value = false;
+      return;
+    }
+
+    const data = await res.json();
+
+    // Ordenar da mais recente para a mais antiga
+    const sorted = data.sort((a, b) => {
+      return new Date(b.date) - new Date(a.date);
+    });
+
+    // Pegar somente as 3 mais recentes
+    donations.value = sorted.slice(0, 3);
+
+  } catch (err) {
+    console.error("Erro ao conectar ao servidor:", err);
+  } finally {
+    loading.value = false;
+  }
+};
+
+onMounted(fetchRecentDonations);
+
+// ALIAS: o template usa recentDonations
+const recentDonations = donations;
+
+// Formatadores
+function formatCurrency(v) {
+  if (v == null) return "-";
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL"
+  }).format(v);
 }
-function formatDate(iso){
-  if (!iso) return ''
-  const d = new Date(iso)
-  return d.toLocaleDateString('pt-BR')
+
+function formatDate(dateStr) {
+  return dateStr || "-";
 }
 </script>
 
@@ -50,7 +91,14 @@ function formatDate(iso){
 .head h3{ margin:0; color:#2b516e; }
 .head .subtitle{ margin:6px 0 14px; color:#8fa6bb; font-size:13px; }
 
-.list{ list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; }
+.list{
+  list-style:none;
+  padding:0;
+  margin:0;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 .item{
   display:flex;
   justify-content:space-between;

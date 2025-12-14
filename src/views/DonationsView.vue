@@ -7,48 +7,36 @@
           <h2>Doações</h2>
           <p class="history-title">Histórico de todas as doações recebidas</p>
         </div>
-        
+
         <button class="new-donation-button" @click="openNewDonationModal" :disabled="isLoading">
           <span class="plus-icon">+</span> Nova Doação
         </button>
       </div>
 
       <div class="content-card">
-        
+
         <div class="list-header">
           <h4>Lista de Doações</h4>
           <p>Pesquise e visualize todas as doações</p>
         </div>
 
-        <div class="search-bar-container">
-          <input 
-            v-model="searchQuery" 
-            type="text" 
-            placeholder="Pesquisar por doador, tipo ou descrição..." 
-            class="search-input"
-          />
-        </div>
         <div v-if="isLoading && !donations.length" class="loading-state">
           Carregando dados... Por favor, certifique-se de que o JSON Server está rodando na porta 3000.
         </div>
-        
+
         <div v-else-if="error" class="error-state">
           Erro: {{ error }}
         </div>
-        
+
         <div v-else>
           <DonationsTable :donations="filteredDonations" />
-
-          <div class="pagination-footer">
-            Mostrando {{ filteredDonations.length }} de {{ donations.length }} doações
-          </div>
         </div>
 
       </div>
 
-      <NewDonationModal 
-        v-if="isModalOpen" 
-        @close="closeModal" 
+      <NewDonationModal
+        v-if="isModalOpen"
+        @close="closeModal"
         @add-donation="handleAddDonation"
       />
     </div>
@@ -79,9 +67,9 @@ const filteredDonations = computed(() => {
   if (!searchQuery.value) {
     return donations.value;
   }
-  
+
   const query = searchQuery.value.toLowerCase();
-  
+
   return donations.value.filter(donation => {
     return (
       donation.donor.toLowerCase().includes(query) ||
@@ -104,11 +92,11 @@ const closeModal = () => {
 const handleAddDonation = async (newDonationData) => {
   // A função addDonation do composable já faz a chamada POST e atualiza o estado
   const result = await addDonation(newDonationData);
-  
+
   if (result) {
     console.log('Doação salva com sucesso no servidor mock!', result);
     closeModal();
-  } 
+  }
   // O Composable gerencia o erro, mas podemos adicionar um feedback aqui se 'result' for nulo.
 };
 </script>
@@ -120,7 +108,7 @@ const handleAddDonation = async (newDonationData) => {
   min-height: 100vh;
   font-family: Inter, Arial, sans-serif;
   background: #f7fbff;
-} 
+}
 
 .donations-page-content {
   flex: 1;
@@ -151,7 +139,7 @@ const handleAddDonation = async (newDonationData) => {
   text-align: center;
   font-weight: 600;
   color: #f59e0b; /* Amarelo/Laranja para feedback */
-  
+
 }
 
 .error-state {

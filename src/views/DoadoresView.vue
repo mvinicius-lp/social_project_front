@@ -245,7 +245,7 @@ export default {
   background: #ff4d4d;
   color: white;
   padding: 8px 12px;
-  width: 20%;
+  width: 30%;
   border: none;
   border-radius: 6px;
   cursor: pointer;
