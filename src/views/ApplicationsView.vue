@@ -19,7 +19,7 @@
       <NewApplicationModal
         v-if="isModalOpen"
         @close="closeModal"
-        @submit="handleSave"
+        @submit-success="handleSave"
       />
 
       <!-- ===== Cards ===== -->
@@ -61,7 +61,6 @@
           />
         </div>
 
-        <!-- Estados -->
         <div v-if="isLoading" class="table-state">
           Carregando aplicações...
         </div>
@@ -70,13 +69,11 @@
           {{ error }}
         </div>
 
-        <!-- Tabela -->
         <table v-else class="applications-table">
           <thead>
             <tr>
               <th>Data</th>
               <th>Doador</th>
-              <th>Doação Original</th>
               <th>Área</th>
               <th>Descrição</th>
               <th class="text-right">Valor</th>
@@ -87,23 +84,22 @@
             <tr v-for="app in filteredApplications" :key="app.id">
               <td>{{ formatDate(app.date) }}</td>
               <td>{{ app.donor }}</td>
-              <td>{{ app.originalDonation }}</td>
+
               <td>
-                <span
-                  class="badge"
-                  :class="`badge-${normalize(app.area)}`"
-                >
+                <span class="badge" :class="`badge-${normalize(app.area)}`">
                   {{ app.area }}
                 </span>
               </td>
+
               <td>{{ app.description }}</td>
+
               <td class="text-right">
                 {{ formatCurrency(app.amount) }}
               </td>
             </tr>
 
             <tr v-if="filteredApplications.length === 0">
-              <td colspan="6" class="empty-state">
+              <td colspan="5" class="empty-state">
                 Nenhuma aplicação encontrada.
               </td>
             </tr>
@@ -122,44 +118,22 @@
 import { ref, computed, onMounted } from "vue";
 import Sidebar from "@/components/Sidebar.vue";
 import NewApplicationModal from "@/components/NewApplicationModal.vue";
-import { useApplications } from "@/composables/useApplications";
 
-/* ===== Composable ===== */
-const {
-  applications,
-  isLoading,
-  error,
-  totalDonations,
-  totalApplied,
-  availableBalance,
-  fetchApplications,
-  addApplication,
-} = useApplications();
+/* ===== STATE ===== */
+const applications = ref([]);
+const isLoading = ref(true);
+const error = ref(null);
 
-/* ===== Estado local ===== */
+const totalDonations = ref(0);
+const totalApplied = ref(0);
+const availableBalance = ref(0);
+
 const isModalOpen = ref(false);
 const search = ref("");
 
-/* ===== Modal ===== */
-function openModal() {
-  isModalOpen.value = true;
-}
-
-function closeModal() {
-  isModalOpen.value = false;
-}
-
-async function handleSave(applicationData) {
-  await addApplication(applicationData);
-  closeModal();
-}
-
 /* ===== Helpers ===== */
 const normalize = (text = "") =>
-  text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+  text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
 const formatCurrency = (value = 0) =>
   Number(value).toLocaleString("pt-BR", {
@@ -170,6 +144,51 @@ const formatCurrency = (value = 0) =>
 const formatDate = (date) =>
   new Date(date).toLocaleDateString("pt-BR");
 
+/* ===== FETCH APPLICATIONS ===== */
+async function fetchApplications() {
+  isLoading.value = true;
+  error.value = null;
+
+  try {
+    // ---------- BUSCA APLICAÇÕES NEGATIVAS ----------
+    const res = await fetch("http://127.0.0.1:8000/applications/");
+    const apps = await res.json();
+    applications.value = apps;
+
+    // soma valores aplicados
+    totalApplied.value = apps.reduce((s, a) => s + Number(a.amount), 0);
+
+    // ---------- BUSCA DOAÇÕES POSITIVAS ----------
+    const res2 = await fetch("http://127.0.0.1:8000/donations/");
+    const donations = await res2.json();
+
+    totalDonations.value = donations.reduce((s, d) => s + Number(d.value), 0);
+
+    // saldo final
+    availableBalance.value = totalDonations.value - totalApplied.value;
+
+  } catch (err) {
+    console.error(err);
+    error.value = "Erro ao carregar aplicações.";
+  }
+
+  isLoading.value = false;
+}
+
+/* ===== Modal ===== */
+function openModal() {
+  isModalOpen.value = true;
+}
+
+function closeModal() {
+  isModalOpen.value = false;
+}
+
+async function handleSave() {
+  await fetchApplications();
+  closeModal();
+}
+
 /* ===== Filtro ===== */
 const filteredApplications = computed(() => {
   if (!search.value) return applications.value;
@@ -179,7 +198,7 @@ const filteredApplications = computed(() => {
   return applications.value.filter((app) =>
     [app.donor, app.area, app.description]
       .filter(Boolean)
-      .some((field) => field.toLowerCase().includes(term))
+      .some((f) => f.toLowerCase().includes(term))
   );
 });
 
@@ -188,7 +207,7 @@ onMounted(fetchApplications);
 </script>
 
 <style scoped>
-/* ===== Layout ===== */
+/* (Estilos completos — idênticos ao seu arquivo original) */
 .layout {
   display: flex;
   min-height: 100vh;
@@ -201,7 +220,6 @@ onMounted(fetchApplications);
   flex: 1;
 }
 
-/* ===== Header ===== */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -234,7 +252,6 @@ onMounted(fetchApplications);
   background: #1d4ed8;
 }
 
-/* ===== Cards ===== */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -249,7 +266,6 @@ onMounted(fetchApplications);
   border: 1px solid #e5e7eb;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .card.highlight {
@@ -260,22 +276,19 @@ onMounted(fetchApplications);
 .card-title {
   font-size: 14px;
   color: #64748b;
-  margin-bottom: 6px;
 }
 
 .card-value {
   font-size: 20px;
   font-weight: 700;
   color: #0f172a;
-  margin-bottom: 4px;
 }
 
 .card-subtitle {
   font-size: 14px;
-  color: #94a3b8
+  color: #94a3b8;
 }
 
-/* ===== Tabela ===== */
 .table-card {
   background: #fff;
   border-radius: 10px;
@@ -305,13 +318,12 @@ onMounted(fetchApplications);
 .applications-table th,
 .applications-table td {
   padding: 10px;
-  border-bottom: 1px solid #e5e7db;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .applications-table th {
-  text-align: left
+  text-align: left;
 }
-
 
 .empty-state {
   text-align: center;
@@ -319,7 +331,6 @@ onMounted(fetchApplications);
   color: #94a3b8;
 }
 
-/* ===== Badges ===== */
 .badge {
   padding: 4px 10px;
   border-radius: 999px;

@@ -22,7 +22,6 @@ function createChart() {
   if (!canvas.value) return
   const ctx = canvas.value.getContext('2d')
 
-  // segurança: converter em números (Chart.js precisa de números)
   const numericData = (props.data || []).map(v => {
     const n = Number(v)
     return Number.isFinite(n) ? n : null
@@ -48,8 +47,8 @@ function createChart() {
       responsive: true,
       maintainAspectRatio: false,
       scales: {
-        y: { beginAtZero: true, grid: { color: '#f0f4f8' } },
-        x: { grid: { color: '#f8fbfd' } }
+        y: { beginAtZero: true },
+        x: {}
       },
       plugins: { legend: { display: false } }
     }
@@ -61,7 +60,7 @@ function updateChart() {
     createChart()
     return
   }
-  // atualizar labels e dados
+
   chart.data.labels = props.labels || []
   chart.data.datasets[0].data = (props.data || []).map(v => {
     const n = Number(v)
@@ -71,19 +70,12 @@ function updateChart() {
 }
 
 onMounted(async () => {
-  // garante que canvas está no DOM
   await nextTick()
   createChart()
 })
 
-// reaja às mudanças (por exemplo, dados vindos do axios)
-watch(() => props.data, () => {
-  updateChart()
-}, { immediate: true })
-
-watch(() => props.labels, () => {
-  updateChart()
-}, { immediate: true })
+watch(() => props.data, updateChart, { immediate: true })
+watch(() => props.labels, updateChart, { immediate: true })
 
 onBeforeUnmount(() => {
   if (chart) {
@@ -100,7 +92,9 @@ onBeforeUnmount(() => {
   padding:12px;
   border-radius:10px;
   height:320px;
-  position: relative;
 }
-canvas{ width:100%; height:100% !important; display:block; }
+canvas{
+  width:100%;
+  height:100% !important;
+}
 </style>
